@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded",() => {
     let typeCount = 0;
     let current = 0;
     let letterCount= 0;
-        //追加
     let typedText;
     let untypedText;
 
@@ -19,12 +18,9 @@ document.addEventListener("DOMContentLoaded",() => {
     document.getElementById("wordLength").textContent = `/${wordLength}`;
     const missMountText = document.getElementById("missMount");
     const infoBox = document.getElementById("info");
-
-    //追加
     const scoreText = document.getElementById("score");
     const otherResult = document.getElementById("other-result");
     const resultSection = document.getElementById("results");
-    //...
 
     const clearSound = document.getElementById("type_clear");
     const missSound = document.getElementById("type_miss");
@@ -54,15 +50,12 @@ document.addEventListener("DOMContentLoaded",() => {
             });
         };
     };
-    //追加
+
     function displayTime() {
-        //1
         const currentTime = Date.now() - startTime;
-        //2
         const s = String(Math.floor(currentTime / 1000)).padStart(2, "0");
         const ms = String(currentTime % 1000).padStart(3, "0");
         timeText.textContent = `${s}.${ms}`;
-        //3
         timeoutID = setTimeout(displayTime, 10);
     }
 
@@ -100,7 +93,6 @@ document.addEventListener("DOMContentLoaded",() => {
         nextPanel.classList.add("active");
     };
 
-    //追加
     function processStartGame (){
         //1
         for (let i = 3, j = 0; i >= 1; i--, j++) {
@@ -125,81 +117,61 @@ document.addEventListener("DOMContentLoaded",() => {
             typedText = document.getElementById(`typed-${current}`);
             untypedText = document.getElementById(`untyped-${current}`);
         },3000);
-    }    
+    }
 
-        function inputCheck(key){
+    function inputCheck(key){
         // Userの入力数カウント用の変数をインクリメントする。
         typeCount += 1;
 
         // 正解のキーをタイプしたら
-        //1(a)
         if(key == wordObjList[current]["untyped"].charAt(0)){
             // 音声再生ごとに、最初から流れるようにする。
             clearSound.currentTime = 0;
             clearSound.play();
 
-            //1(b)
             wordObjList[current]["typed"] = wordObjList[current]["typed"] + wordObjList[current]["untyped"].charAt(0);
             wordObjList[current]["untyped"] = wordObjList[current]["untyped"].substring(1);
 
-            //1(c)
             typedText.textContent = wordObjList[current]["typed"]
             untypedText.textContent = wordObjList[current]["untyped"]
 
             // ラスト1文字→次のワードへ
-            //2
             if(wordObjList[current]["untyped"].length == 0){
 
                 //1単語分終了したので、current インデックスをインクリメントする。
                 current += 1;
                 wordCountText.textContent = current;
-
                 // ゲームの最終単語→ゲーム終了
-                //3(a)
                 if(current == wordLength){
-                    // ゲーム終了処理（後で追加）
                     processEndGame();
                 }
-                //3(b)
                 else{
                     highlightCurrentPanel();
-                    //3(c)
                     typedText = document.getElementById(`typed-${current}`)
                     untypedText = document.getElementById(`untyped-${current}`)
-                    missMountText.textContent = missTypeCount;
                 }
             }
         }
-        //4
         else{
             missSound.currentTime = 0;
             missSound.play();
             missTypeCount += 1;
+            missMountText.textContent = missTypeCount;
         }
     }
-    //ジャンル選択用
-    const levelBtns = document.querySelectorAll(".level_btn");
-    //active-leveクラスがついたlabelタグの子要素のinputタグを取得する。
-    let radioInput = document.querySelector(".active-level input");
-    let level = radioInput.value;
 
-    
     function processEndGame(){
-        //1
         clearTimeout(timeoutID);
         const stopTime = (Date.now() - startTime);
-        //2
         const score = parseInt((typeCount / stopTime) * 60000 * (letterCount / typeCount) ** 3);
         scoreText.textContent = `SCORE : ${score}`;
         otherResult.textContent = `合計入力文字数（ミスを含む):${typeCount}`;
         resultSection.style.display = "flex";
-        //3
         // 全パネルのハイライトを消す
         for (let i = 0; i < wordLength; i++) {
             const panel = document.getElementById("panel-" + i);
             panel.classList.remove("active","faded");
         };
-        //4
         startFlag = 3;
         window.scrollTo({
             top: 100,      // 縦スクロールの位置
@@ -208,9 +180,14 @@ document.addEventListener("DOMContentLoaded",() => {
         });
     };
 
+    //ジャンル選択用
+    const levelBtns = document.querySelectorAll(".level_btn");
+    //active-leveクラスがついたlabelタグの子要素のinputタグを取得する。
+    let radioInput = document.querySelector(".active-level input");
+    let level = radioInput.value;
+
     function handleLevelChange(newRadioInput){
         //今まで選択していたradioボタンと異なれば
-        //1
         if(radioInput !== newRadioInput){
             level = newRadioInput.value;
             newRadioInput.parentElement.classList.add("active-level");
@@ -220,28 +197,22 @@ document.addEventListener("DOMContentLoaded",() => {
 
     }
 
-    //2
     levelBtns.forEach(element => {
         element.querySelector("input").addEventListener("click",(event) => {
             handleLevelChange(event.target);
         });
     });
-        //1
+
     window.addEventListener("keydown", (event) => {
-        //2
         if(startFlag == 0 && event.key == " "){
-            startFlag = 1;
+            startFlag = 1
             processStartGame();
         }
-        //3
         else if(startFlag == 2 && event.key.length == 1 && event.key.match(/^[a-zA-Z0-9!-/:-@\[-`{-~\s]*$/)){
             inputCheck(event.key);
         }
-                // 追加:1
         else if(startFlag == 3 && (event.key =="Enter" || event.key == "Escape")){
             this.location.reload();
         };
     })
 });
-
-
